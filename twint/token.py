@@ -18,8 +18,7 @@ class RefreshTokenException(Exception):
 class Token:
     def __init__(self, config):
         self._session = requests.Session()
-        self._session.headers.update(
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0'})
+        self._session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0'})
         self.config = config
         self._retries = 5
         self._timeout = 10
@@ -85,13 +84,12 @@ class Token:
                 'accept-language': 'en-US',
             }
             self._session.headers.update(headers)
-            req = self._session.prepare_request(
-                requests.Request('POST', 'https://api.twitter.com/1.1/guest/activate.json'))
+            req = self._session.prepare_request(requests.Request('POST', 'https://api.twitter.com/1.1/guest/activate.json'))
             res = self._session.send(req, allow_redirects=True, timeout=self._timeout)
             match = re.search(r'{"guest_token":"(\d+)"}', res.text)
-        if match:
-            logme.debug('Found guest token in JSON')
-            self.config.Guest_token = str(match.group(1))
-        else:
-            self.config.Guest_token = None
-        raise RefreshTokenException('Could not find the Guest token in JSON')
+            if match:
+                logme.debug('Found guest token in JSON')
+                self.config.Guest_token = str(match.group(1))
+            else:
+                self.config.Guest_token = None
+                raise RefreshTokenException('Could not find the Guest token in JSON')
